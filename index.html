@@ -48,13 +48,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         e.target.tagName, String(e.target.src || e.target.href || ''));
       return;
     }
-    var p = document.body || document.documentElement;
-    var d = document.getElementById('__bundler_err') || p.appendChild(document.createElement('div'));
-    d.id = '__bundler_err';
-    d.style.cssText = 'position:fixed;bottom:12px;left:12px;right:12px;font:12px/1.4 ui-monospace,monospace;background:#2a1215;color:#ff8a80;padding:10px 14px;border-radius:8px;border:1px solid #5c2b2e;z-index:99999;white-space:pre-wrap;max-height:40vh;overflow:auto';
-    d.textContent = (d.textContent ? d.textContent + String.fromCharCode(10) : '') +
-      '[bundle] ' + (e.message || e.type) +
-      (e.filename ? ' (' + e.filename.slice(0, 60) + ':' + e.lineno + ')' : '');
+    // Report to the console only. This handler is origin-blind: it fires for
+    // ANY uncaught error on the page, including opaque cross-origin ones that
+    // browsers report as a bare 'Script error.' with no file or line. Painting
+    // that into a fixed overlay showed visitors a red debug box for failures
+    // the page did not cause - on iOS Safari it fired when the Share sheet was
+    // opened. Diagnostics stay in the console where developers can see them.
+    console.error('[bundle] ' + (e.message || e.type) +
+      (e.filename ? ' (' + e.filename.slice(0, 60) + ':' + e.lineno + ')' : ''));
   }, true);
 
   try {
